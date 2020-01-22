@@ -6,7 +6,7 @@ use MeCab;
 my $model = new MeCab::Model(join " ", @ARGV);
 my $c = $model->createTagger();
 
-my $file = "20190403.txt";
+my $file = "qiita.txt";
 my $ln = 1;
 my %tf;
 
@@ -14,7 +14,21 @@ open(FF, $file) or die "$file not found";
 while(my $line = <FF>){
     chomp $line;
     for (my $m = $c->parseToNode($line); $m; $m = $m->{next}) {
-        if ($m->{feature} =~ /名詞/){
+	@features = split(/,/, $m->{feature});
+        if ($m->{feature} =~ /サ変接続/ and @features[6] == "*") {
+            next;
+        }
+	if ($m->{feature} =~ /数/) {
+	    next;
+	}
+	if ($m->{feature} =~ /非自立/) {
+	    next;
+	}
+	if ($m->{feature} =~ /代名詞/) {
+	    next;
+	}
+        if (($m->{feature} =~ /名詞/)){
+	    # printf("%s\t%s\n", $m->{surface}, $m->{feature});
             $tf{$m->{surface}}++;
         }
     }
